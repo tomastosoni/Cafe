@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificación de Código para Café</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <input type="file" id="archivoExcel" accept=".xlsx">
+    <h1>Máquina de Café</h1>
+    <p>Por favor, ingrese su código único para verificar acceso.</p>
+    <input type="text" id="codigo" placeholder="Ingrese código" autofocus>
+    <button onclick="verificarCodigo()">Verificar</button>
+    <div id="resultado"></div>
+
+    <script>
+        let alumnosData = [];
+
+        // Event listener para cargar y leer el archivo Excel
+        document.getElementById("archivoExcel").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                alumnosData = XLSX.utils.sheet_to_json(worksheet);
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Función para verificar el código ingresado
+        function verificarCodigo() {
+            const codigoIngresado = document.getElementById("codigo").value.trim();
+            const alumno = alumnosData.find(a => a['Codigo Unico'] == codigoIngresado);
+
+            if (alumno) {
+                document.getElementById("resultado").innerText = "Acceso permitido: " + alumno.Alumno;
+            } else {
+                document.getElementById("resultado").innerText = "Acceso denegado. Código no encontrado.";
+            }
+
+            // Limpia el campo para el siguiente ingreso
+            document.getElementById("codigo").value = '';
+        }
+    </script>
+</body>
+</html>
